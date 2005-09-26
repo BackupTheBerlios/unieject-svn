@@ -1,0 +1,45 @@
+26 September 2005: Release 5
+----------------------------
+This release is the first one with the public SVN, but still nobody stepped up
+to prepare translations. It features a documentation cleanup, the new manpages
+that uses mxml2man (and are no more created at buildtime, so no more extra
+deps), and a clean up in dependencies, now also libconfuse is optional (but
+required to get the configuration file working). It also adds a new lock action
+to lock/unlock the manual eject of a CD-Rom drive.
+
+30 August 2005: Release 4
+-------------------------
+Another release, this time with working gettext support. Also added "loadcd"
+alias to trayclose. Now the release are built with make dist, and it also
+generate the ChangeLog using svn2cl xsl file (require xsltproc and access
+to my SVN repository, so I'm the only one who can use it right now). Added
+preliminary support to Doxygen. Now unieject builds fine without any kind of
+warning.
+
+31 July 2005: Release 3
+-----------------------
+New major release. Added gettext (internationalization) support. Added support
+for a configuration file with default parameters to unieject command.
+Added support for configurable umount wrappers like pumount and hmount.
+There's a test manpage for libunieject_setspeed(3) function.
+This version requires libconfuse and builds only with GCC and ICC (with support
+for __attribute__((constructor)).
+
+24 July 2005: Release 2.1
+-------------------------
+Quick release to change the default access method to Linux CD-Roms from ioctl
+to READ_CD, as ioctl seems to be broken on SCSI mediums.
+Also improved the man page with information about the environmental variables
+affecting the execution.
+Added a parameter to change the access mode for the command and another to set
+the debug level for libcdio output (doesn't affect unieject verbosity).
+
+23 July 2005: Release 2
+-----------------------
+This is the second public "working" version, the first hitting Gentoo's Portage.
+Respect to the first release it features a complete manpage for the unieject
+tool, a "wannabe stable" API interface, and a complete FreeBSD support for both
+direct ATAPI mode and CAM mode.
+
+Mac OSX support is still pre-alpha, and needs quite a few changes as for the
+moment it doesn't seems to be able to open the device (libcdio problems?).

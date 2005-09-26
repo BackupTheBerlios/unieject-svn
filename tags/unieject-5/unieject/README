@@ -1,0 +1,121 @@
+unieject: Universal Eject command
+---------------------------------
+
+This package consists of a library and a command line tool which uses that lib.
+
+libunieject is a library which allows the linked software to perform
+automatical ejects and unmounting the filesystems for the device you want to
+eject.
+At the time of writing (pre-1 release), this is still not API-stable nor well
+documented, but this is going to improve in next versions.
+
+The command line tool instead is a mimic of classic eject command for Linux
+( http://eject.sourceforge.net/ ), which supports also the features of
+FreeBSD's eject command ( http://www.freshports.org/sysutils/eject/ ).
+
+It hasn't a complete syntax compatibility with either Linux's or FreeBSD's
+ejects as they have conflicts between them, but the main options are the
+same.
+
+It can fully replace FreeBSD's eject (in both atapi and atapicam mode), and
+already mime the main options of Linux's eject.
+
+Dependencies
+------------
+
+libcdio (version 0.74 or above) http://www.gnu.org/software/libcdio/
+  The base library that provides access to CD-Rom drives. Mandatory.
+  FreeBSD support requires at least version 0.76 to handle ATAPI
+  CD-Roms without CAM support.
+
+libpopt
+  Used for command line parameters and arguments parsing. Mandatory.
+
+libconfuse (2.5) http://www.nongnu.org/confuse/
+  Used for configuration file parsing. Optional, it can be disabled with
+  --without-libconfuse option at ./configure, in which case the configuration
+  file won't be loaded and parsed at all.
+
+Subversion
+  Required to get an updated ChangeLog built during make dist phase.
+  Optional when building out of the source tarball.
+
+libxslt
+  xsltproc command is used to use svn2cl script, it's only needed during
+  make dist phase, so no need for it when building out of the source
+  tarball.
+
+mxml2man (8.5.9.1) http://dev.gentoo.org/~flameeyes/projects.xhtml#mxml2man
+  This evolution of Apple's xml2man is used to create the man pages from the
+  MXML sources. The modified version is required to get the extended MXML
+  format working.
+  It's not required to build unieject, as now the man pages are generated at
+  distribution time, but it's needed to complete a make dist.
+
+Compiler
+  unieject is tested with GCC 3.3, 3.4 and 4.0. It should work fine with ICC9,
+  too. To work it requires constructor and destructor attiibutes that are
+  present in GCC since version 3, and in ICC 9 (at least).
+  If supported, it will also make use of other attributes to hide symbols from
+  the resulting library.
+
+OS-specific notes
+-----------------
+Although libcdio masks most of the underlying operating system's calls, to work
+as intended, unieject has to use some workarounds on certain OS:
+
+FreeBSD
+  - When accessing CD-Rom devices via CAM interface, the capabilities are
+    unset as there is no way to get them directly. They are then ignored, and
+    set as the drive is capable of everything.
+  - Before ejecting a CD-Rom, the CDIOCALLOW ioctl must be sent to the device.
+  - Ejecting an ATAPI CD-Rom device without using CAM interface is done with
+    raw ioctls.
+
+Linux
+  - The MMC to lock the CD-Rom door is disallowed from userspace, so the lock
+    is done using raw ioctls. The workaround is enabled during configure by
+    --enable-lock-workaround, so that it can be disabled if this will change
+    in future.
+
+Note to packagers
+-----------------
+Being a package maintainer myself, I think it's good to leave a few notes to
+who wants to package unieject.
+
+Unieject is though as a drop-in replacement for 'eject' command, but still it
+doesn't just "go in" as is, because programs just know about 'eject' command.
+If you want to make unieject provide the eject facilities to other programs
+you need to create an eject symlink to unieject so that eject command is
+executed by unieject.
+Please also note that to be able to umount correctly the partitions you must
+be root, or use a suid wrapper. You can also set capabilities bits to eject
+command, but that's still not supported. The use of a suid umount wrapper like
+pumount is supported by the configuration file.
+
+The sample configuration file is not installed by default, this allow to define
+the right unieject defaults on a per-distribution basis.
+
+API documentation is not being built at the moment; when it will be, it will be
+specified and will have a --enable/--disable switch on ./configure.
+
+This package is supposed to build fine with -Werror, -Wall, -Wextra and 
+-pedantic CFLAGS, or at least it does so on my system. Unfortuantely, it's
+./configure to fail when checking for strdup if -Werror is defined, I don't
+really know why. Also --as-needed LDFLAG is supposed to work.
+
+API Documentation
+-----------------
+libunieject is quite simple as a library, but it has some documentation about
+the libraries it provides.
+The API documentation can be built using doxygen. The configure script will
+automatically take care of looking for doxygen and, if it's found, to expand
+a Doxyfile with the path of the source code and the output directory that would
+be $(top_builddir)/doc.
+The formats which you want the documentation into can be selected passing to
+configure a DOXYFORMATS with the name of the formats to enable.
+
+Note: --enable-doc does *not* mean that the doc is going to be built by make
+and installed by make install. Building and installing the documentation is
+something that should be done only by the users (or packagers) who really
+wants and know how to use the API documentation.
